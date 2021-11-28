@@ -6,6 +6,6 @@ import java.util.List;
 
 public interface RoleDao {
     List<Role> getAllRoles();
-    Role getRole(String role);
+    Role getRoleByName(String role);
     void saveRole(Role role);
 }

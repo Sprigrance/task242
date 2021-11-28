@@ -17,9 +17,10 @@
     <input type="text" th:field="*{password}" id="password"/>
     <br/>
 
-<!--    <label for="roles">Change role(s):</label>-->
-<!--    <input type="text" th:field="*{roles}" id="roles"/>-->
-<!--    <br/>-->
+    <!-- @RequestParam String[] strRoles -->
+    <input type="checkbox" name="strRoles" th:value="ROLE_ADMIN" th:text="ADMIN" />
+    <input type="checkbox" name="strRoles" th:value="ROLE_USER" th:text="USER" />
+    <br/>
 
     <input type="submit" value="Update!"/>
 </form>

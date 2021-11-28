@@ -6,7 +6,9 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.kirillov.spring.dao.RoleDao;
 import ru.kirillov.spring.models.Role;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class RoleServiceImpl implements RoleService {
@@ -27,12 +29,22 @@ public class RoleServiceImpl implements RoleService {
     @Override
     @Transactional(readOnly = true)
     public Role getRoleByName(String role){
-        return roleDao.getRole(role);
+        return roleDao.getRoleByName(role);
     }
 
     @Override
     @Transactional
     public void saveRole(Role role) {
         roleDao.saveRole(role);
+    }
+
+    @Override
+    @Transactional
+    public Set<Role> getSetRoleFromArray(String[] roles) {
+        Set<Role> rolesSet = new HashSet<>();
+        for (String role : roles) {
+            rolesSet.add(roleDao.getRoleByName(role));
+        }
+        return rolesSet;
     }
 }

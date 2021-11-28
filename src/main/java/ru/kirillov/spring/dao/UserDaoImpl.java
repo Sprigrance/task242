@@ -35,6 +35,7 @@ public class UserDaoImpl implements UserDao {
         User userToBeUpdated = getUser(id);
         userToBeUpdated.setUsername(updatedUser.getUsername());
         userToBeUpdated.setPassword(updatedUser.getPassword());
+        userToBeUpdated.setRoles(updatedUser.getRoles());
         entityManager.merge(userToBeUpdated);
     }
 
@@ -42,8 +43,6 @@ public class UserDaoImpl implements UserDao {
     public void deleteUser(int id) {
         entityManager.remove(getUser(id));
     }
-
-
 
     @Override
     public User loadUserByUsername(String name) {

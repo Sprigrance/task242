@@ -11,8 +11,10 @@ import ru.kirillov.spring.services.RoleService;
 import ru.kirillov.spring.services.UserService;
 
 import javax.annotation.PostConstruct;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admins")
@@ -20,11 +22,13 @@ public class AdminsController {
 
     private final UserService userService;
     private final RoleService roleService;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public AdminsController(UserService userService, RoleService roleService) {
+    public AdminsController(UserService userService, RoleService roleService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.roleService = roleService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     // index-страница после редиректа
@@ -47,11 +51,17 @@ public class AdminsController {
         return "admin/new";
     }
 
-    // POST-метод возьмет пользователя со страницы new.html, передаст его с помощью @ModelAttribute("newUser") в User user
-    //    и сделает .saveUser()
-    // если никакого User модель содержать не будет, то в User user поместится user с полями по умолчанию (0, null, null)
+    // POST-метод возьмет "newUser" со страницы new.html,
+    //  передаст его с помощью @ModelAttribute("newUser") в User user,
+    //   передаст с помощью checkbox, "newRoles?ROLE_ADMIN" и @RequestParam в String[] strRoles - строковые роли
+    //    и сделает .saveUser().
+    // Если никакого User модель содержать не будет, то в User user поместится user с полями по умолчанию (0, null, null)
     @PostMapping()
-    public String addUser(@ModelAttribute("newUser") User user) {
+    public String addUser(@ModelAttribute("newUser") User user,
+                          @RequestParam String[] strRoles) {
+
+        user.setPassword(passwordEncoder.encode(user.getPassword()));  // Шифруем пароль
+        user.setRoles(roleService.getSetRoleFromArray(strRoles));      // Преобразовываем роли
         userService.saveUser(user);
         return "redirect:/admins";
     }
@@ -65,9 +75,14 @@ public class AdminsController {
     }
 
     // PATCH-запрос из editUser.html возьмет пользователя из модели existingUser, поместит его в user,
-    // id так же перейдёт из editUser.html. Далее произойдет изменение с помощью updateUser()
+    //  id принимается из editUser.html с помощью @PathVariable.
+    //   Далее произойдет изменение с помощью updateUser()
     @PatchMapping("/{id}")
-    public String updateUser(@ModelAttribute("existingUser") User user, @PathVariable("id") int id) {
+    public String updateUser(@ModelAttribute("existingUser") User user,
+                             @PathVariable("id") int id,
+                             @RequestParam String[] strRoles) {
+
+        user.setRoles(roleService.getSetRoleFromArray(strRoles));      // Преобразовываем роли
         userService.updateUser(id, user);
         return "redirect:/admins";
     }
@@ -80,19 +95,15 @@ public class AdminsController {
     }
 
 //  Ручное добавление пользователей и ролей
-//    @Autowired
-//    private PasswordEncoder passwordEncoder;
-//
 //    @PostConstruct
 //    public void myinit() {
 //        Role role1 = new Role("ROLE_ADMIN");
 //        Role role2 = new Role("ROLE_USER");
+//        roleService.saveRole(role1);
+//        roleService.saveRole(role2);
 //        Set<Role> roles = new HashSet<>();
 //        roles.add(role1);
 //        roles.add(role2);
-//
-//        roleService.saveRole(role1);
-//        roleService.saveRole(role2);
 //
 //        User user = new User();
 //        user.setUsername("admin");
